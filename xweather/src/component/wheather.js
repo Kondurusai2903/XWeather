@@ -10,6 +10,7 @@ const Boxmode1 = ({ def, val }) => {
         margin: "1rem",
         borderRadius: "10px",
       }}
+      className="weather-card"
     >
       <div
         style={{
@@ -32,19 +33,25 @@ const Wheather = () => {
     e.preventDefault();
     res();
   };
+  const handlechange = (e) => {
+    setInput(e.target.value);
+    setWeather([]);
+  };
   const res = async () => {
     try {
       let response = await fetch(
         `https://api.weatherapi.com/v1/current.json?key=5dfa0dd85b764bb2875172346242606&q=${input}`
       );
       let data = await response.json();
-      setWeather(data);
+      if (data.error) {
+        alert("Failed to fetch weather data");
+      } else {
+        setWeather(data);
+      }
     } catch (err) {
       alert("Failed to fetch weather data");
     }
   };
-  console.log(input);
-  console.log(weather);
   return (
     <div>
       <center>
@@ -57,7 +64,7 @@ const Wheather = () => {
             placeholder="Enter city name"
             required
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={handlechange}
           />
           <button
             type="submit"
@@ -71,14 +78,18 @@ const Wheather = () => {
             Search
           </button>
         </form>
+
+        {input.length > 0 && weather.length !== 0 ? (
+          <div style={{ display: "flex" }} className="weather-cards">
+            <Boxmode1 def={"Temperature"} val={weather.current.temp_c} />
+            <Boxmode1 def={"Humidity"} val={weather.current.humidity} />
+            <Boxmode1 def={"Condition"} val={weather.current.condition.text} />
+            <Boxmode1 def={"Wind"} val={weather.current.wind_kph} />
+          </div>
+        ) : (
+          <p>Loading data...</p>
+        )}
       </center>
-      {weather ? "" : "loading..."}
-      {/* <div style={{ display: "flex" }}>
-        <Boxmode1 def={"Temparature"} val={weather.current.temp_c} />
-        <Boxmode1 def={"Humidity"} val={weather.current.humidity} />
-        <Boxmode1 def={"Condition"} val={weather.current.condition.text} />
-        <Boxmode1 def={"Temparature"} val={weather.current.temp_c} />
-      </div> */}
     </div>
   );
 };
